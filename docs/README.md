@@ -1,11 +1,15 @@
 # Welcome
-**Here are SkyWalking 6 official documents. You're welcome to join us.**
+**Here are SkyWalking 8 official documents. You're welcome to join us.**
 
 From here you can learn all about **SkyWalking**’s architecture, how to deploy and use SkyWalking, and develop based on SkyWalking contributions guidelines.
 
+**NOTICE, SkyWalking 8 uses brand new tracing APIs, it is incompatible with all previous releases.**
+
 - [Concepts and Designs](en/concepts-and-designs/README.md). You'll find the the most important core ideas about SkyWalking. You can learn from here if you want to understand what is going on under our cool features and visualization.
 
-- [Setup](en/setup/README.md). Guides for installing SkyWalking in different scenarios. As a platform, it provides several ways to provide observability, including monitoring and alarm of course. 
+- [Setup](en/setup/README.md). Guides for installing SkyWalking in different scenarios. As a platform, it provides several ways to provide observability, including monitoring and alarm of course.
+
+- [UI Introduction](en/ui/README.md). Introduce the UI usage and features. 
 
 - [Contributing Guides](en/guides/README.md). Guides are for PMC member, committer or new contributor. Here, you can find how to start contributing.
 
@@ -17,6 +21,8 @@ From here you can learn all about **SkyWalking**’s architecture, how to deploy
 In addition, you might find these links interesting:
 
 - The latest and old releases are all available at [Apache SkyWalking release page](http://skywalking.apache.org/downloads/). The change logs are [here](../CHANGES.md).
+
+- [SkyWalking WIKI](https://cwiki.apache.org/confluence/display/SKYWALKING/Home) hosts the context of some changes and events.
 
 - Up-to-date overview of SkyWalking module [call flow](https://sourcespy.com/github/skywalking/xx-omcalls-.html) and [hierarchy](https://sourcespy.com/github/skywalking/xx-omhierarchy-.html) including ability to analize each module individually.
 
@@ -58,7 +64,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Advanced features](en/setup/service-agent/java-agent/README.md#advanced-features).
       * [Plugin development guide](en/setup/service-agent/java-agent/README.md#plugin-development-guide).
       * [Agent plugin tests and performance tests](en/setup/service-agent/java-agent/README.md#test).
-    * [Other language agents](en/setup/README.md#language-agents-in-service) includes .NetCore, PHP, NodeJS, Go, which are maintained by volunteers.
+    * [Other language agents](en/setup/README.md#language-agents-in-service) includes Nginx LUA, Python, .NetCore, PHP, NodeJS, Go.
   * Service Mesh
     * [SkyWalking on Istio](en/setup/istio/README.md). Introduces how to use Istio Mixer bypass Adapter to work with SkyWalking.
     * Use [ALS (access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh, without Mixer. Follow [document](en/setup/envoy/als_setting.md) to open it.
@@ -71,6 +77,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Deploy in kubernetes](en/setup/backend/backend-k8s.md). Guides you to build and use SkyWalking image, and deploy in k8s.
       * [Choose storage](en/setup/backend/backend-storage.md). As we know, in default quick start, backend is running with H2 DB. But clearly, it doesn't fit the product env. In here, you could find what other choices do you have. Choose the one you like, we also welcome anyone to contribute new storage implementors.
       * [Set receivers](en/setup/backend/backend-receivers.md). You could choose receivers by your requirements, most receivers are harmless, at least our default receivers are. You would set and active all receivers provided.
+      * [Open fetchers](en/setup/backend/backend-fetcher.md). You could open different fetchers to read metrics from the target applications. These ones works like receivers, but in pulling mode, typically like Prometheus.
       * Do [trace sampling](en/setup/backend/trace-sampling.md) at backend. Trace sampling allows you to keep your metrics accurate, whilst only keeping some traces in storage based on rate.
       * Follow [slow DB statement threshold](en/setup/backend/slow-db-statement.md) config document to understand how to detect slow database statements (including SQL statements) in your system.
       * Official [OAL scripts](en/guides/backend-oal-scripts.md). As you known from our [OAL introduction](en/concepts-and-designs/oal.md), most of backend analysis capabilities based on the scripts. Here is the description of official scripts, which helps you to understand which metrics data are in process, also could be used in alarm.
@@ -82,6 +89,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Uninstrumented Gateways](en/setup/backend/uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins, to reflect the delegation in topology graph.
     * [UI setup document](en/setup/backend/ui-setup.md).
     * [CLI setup document](https://github.com/apache/skywalking-cli).
+* [UI Introduction](en/ui/README.md). Introduce the UI usage and features.
 * [Contributing Guides](en/guides/README.md). Guides are for PMC member, committer or new contributor. At here, you can find how to start contributing.
   * [Contact us](en/guides/README.md#contact-us). Guide users about how to contact the official committer team or communicate with the project community.
   * [Process to become official Apache SkyWalking Committer](en/guides/asf/committer.md). How to become an official committer or PMC member.
@@ -89,16 +97,5 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
   * [Agent plugin development guide](en/guides/Java-Plugin-Development-Guide.md). Guide developers to write their plugin, and follow [plugin test requirements](en/guides/Plugin-test.md) when you push the plugin to the upstream.
 * [Protocols](en/protocols/README.md). Protocols show the communication ways between agents/probes and backend. Anyone interested in uplink telemetry data should definitely read this.
 * [FAQs](en/FAQ/README.md). A manifest of already known setup problems, secondary developments experiments. When you are facing a problem, check here first.
-
-
-___
-### Users from 5.x
-
-SkyWalking 5.x is still supported by the community. For the users planning to upgrade from 5.x to 6.x, you should know some definitions of concepts changed.
-
-The most important two changed concepts are:
-
-1. Application (in 5.x) is changed to **Service** (in 6.x), also Application Instance is changed to **Service Instance**.
-2. Service (in 5.x) is changed to **Endpoint** (in 6.x).
 
 

@@ -18,9 +18,15 @@
 
 package test.org.apache.skywalking.apm.testcase.kafka.controller;
 
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import javax.annotation.PostConstruct;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.internals.NoOpConsumerRebalanceListener;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -33,11 +39,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.function.Consumer;
 
 import static java.util.Objects.isNull;
 
@@ -54,12 +55,16 @@ public class CaseController {
     private String bootstrapServers;
 
     private String topicName;
+    private String topicName2;
+    private Pattern topicPattern;
 
     private static volatile boolean KAFKA_STATUS = false;
 
     @PostConstruct
     private void setUp() {
         topicName = "test";
+        topicName2 = "test2";
+        topicPattern = Pattern.compile("test.");
         new CheckKafkaProducerThread(bootstrapServers).start();
     }
 
@@ -75,11 +80,23 @@ public class CaseController {
                     logger.info("send success metadata={}", metadata);
                 }
             });
+
+            ProducerRecord<String, String> record2 = new ProducerRecord<String, String>(topicName2, "testKey", Integer.toString(1));
+            record2.headers().add("TEST", "TEST".getBytes());
+            Callback callback2 = (metadata, exception) -> {
+                logger.info("send success metadata={}", metadata);
+            };
+            producer.send(record2, callback2);
         }, bootstrapServers);
+
         Thread thread = new ConsumerThread();
         thread.start();
+
+        Thread thread2 = new ConsumerThread2();
+        thread2.start();
         try {
             thread.join();
+            thread2.join();
         } catch (InterruptedException e) {
             // ignore
         }
@@ -132,16 +149,15 @@ public class CaseController {
                         return;
                     }
                     wrapProducer(producer -> {
-                        ProducerRecord<String, String> record = new ProducerRecord<String, String>("check", "checkKey", Integer.toString(1));
+                        ProducerRecord<String, String> record = new ProducerRecord<String, String>("check", "checkKey", Integer
+                            .toString(1));
                         record.headers().add("CHECK", "CHECK".getBytes());
-                        producer.send(record, new Callback() {
-                            @Override
-                            public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                                if (isNull(e)) {
-                                    KAFKA_STATUS = true;
-                                }
+                        Callback callback = (metadata, e) -> {
+                            if (isNull(e)) {
+                                KAFKA_STATUS = true;
                             }
-                        });
+                        };
+                        producer.send(record, callback);
                     }, bootstrapServers);
                 } catch (Exception e) {
                     logger.error("check " + bootstrapServers + " " + e.getMessage(), e);
@@ -179,7 +195,50 @@ public class CaseController {
 
                 if (!records.isEmpty()) {
                     for (ConsumerRecord<String, String> record : records) {
-                        logger.info("header: {}", new String(record.headers().headers("TEST").iterator().next().value()));
+                        logger.info("header: {}", new String(record.headers()
+                                                                   .headers("TEST")
+                                                                   .iterator()
+                                                                   .next()
+                                                                   .value()));
+                        logger.info("offset = {}, key = {}, value = {}", record.offset(), record.key(), record.value());
+                    }
+                    break;
+                }
+            }
+
+            consumer.close();
+        }
+    }
+
+    public class ConsumerThread2 extends Thread {
+        @Override
+        public void run() {
+            Properties consumerProperties = new Properties();
+            consumerProperties.put("bootstrap.servers", bootstrapServers);
+            consumerProperties.put("group.id", "testGroup2");
+            consumerProperties.put("enable.auto.commit", "true");
+            consumerProperties.put("auto.commit.interval.ms", "1000");
+            consumerProperties.put("auto.offset.reset", "earliest");
+            consumerProperties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+            consumerProperties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+            KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProperties);
+            consumer.subscribe(topicPattern, new NoOpConsumerRebalanceListener());
+            int i = 0;
+            while (i++ <= 10) {
+                try {
+                    Thread.sleep(1 * 1000);
+                } catch (InterruptedException e) {
+                }
+
+                ConsumerRecords<String, String> records = consumer.poll(100);
+
+                if (!records.isEmpty()) {
+                    for (ConsumerRecord<String, String> record : records) {
+                        logger.info("header: {}", new String(record.headers()
+                          .headers("TEST")
+                          .iterator()
+                          .next()
+                          .value()));
                         logger.info("offset = {}, key = {}, value = {}", record.offset(), record.key(), record.value());
                     }
                     break;

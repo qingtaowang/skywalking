@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.support;
 
 import com.mongodb.bulk.DeleteRequest;
@@ -45,12 +44,11 @@ import org.bson.BsonDocument;
 
 import java.util.List;
 
-/**
- * @author scolia
- */
-@SuppressWarnings({"deprecation", "Duplicates"})
+@SuppressWarnings({
+    "deprecation",
+    "Duplicates"
+})
 public class MongoOperationHelper {
-
 
     private MongoOperationHelper() {
 
@@ -130,8 +128,7 @@ public class MongoOperationHelper {
             }
             final int filterLengthLimit = Config.Plugin.MongoDB.FILTER_LENGTH_LIMIT;
             if (filterLengthLimit > 0 && params.length() > filterLengthLimit) {
-                params.append("...");
-                break;
+                return params.substring(0, filterLengthLimit) + "...";
             }
         }
         return params.toString();

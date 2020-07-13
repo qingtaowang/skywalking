@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.apm.agent.core.plugin.match.logical;
 
+import net.bytebuddy.description.type.TypeDescription;
+import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.NegatingMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 
 /**
  * Util class to help to construct logical operations on {@link org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch}s
- *
- * @author kezhenxu94
  */
 public class LogicalMatchOperation {
     public static IndirectMatch and(final IndirectMatch... matches) {
@@ -32,5 +33,19 @@ public class LogicalMatchOperation {
 
     public static IndirectMatch or(final IndirectMatch... matches) {
         return new LogicalOrMatch(matches);
+    }
+
+    public static IndirectMatch not(final IndirectMatch match) {
+        return new IndirectMatch() {
+            @Override
+            public ElementMatcher.Junction buildJunction() {
+                return new NegatingMatcher(match.buildJunction());
+            }
+
+            @Override
+            public boolean isMatch(final TypeDescription typeDescription) {
+                return !match.isMatch(typeDescription);
+            }
+        };
     }
 }

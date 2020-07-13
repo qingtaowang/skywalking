@@ -22,9 +22,6 @@ import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 
-/**
- * @author zhangwei
- */
 public class ServiceInstanceCallRelationDispatcher implements SourceDispatcher<ServiceInstanceRelation> {
 
     @Override
@@ -47,7 +44,7 @@ public class ServiceInstanceCallRelationDispatcher implements SourceDispatcher<S
         metrics.setDestServiceId(source.getDestServiceId());
         metrics.setDestServiceInstanceId(source.getDestServiceInstanceId());
         metrics.setComponentId(source.getComponentId());
-        metrics.buildEntityId();
+        metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
@@ -59,7 +56,7 @@ public class ServiceInstanceCallRelationDispatcher implements SourceDispatcher<S
         metrics.setDestServiceId(source.getDestServiceId());
         metrics.setDestServiceInstanceId(source.getDestServiceInstanceId());
         metrics.setComponentId(source.getComponentId());
-        metrics.buildEntityId();
+        metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 }
